@@ -16,7 +16,7 @@ public class AlunoDAO {
 
     }
 
-    public void mandaprala(AlunoModel novoAluno) {
+    public void guardaNaBD(AlunoModel novoAluno) {
 
         try {
             // Create a connection to the database
@@ -36,29 +36,27 @@ public class AlunoDAO {
             String insertSQL = "INSERT INTO Aluno (Nome, Numero, Turma, Contacto) VALUES (?, ?, ?, ?)";
 
             // Specify that you want to retrieve the generated keys
-            PreparedStatement esqueletoInsert = connection.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
+            connection.setAutoCommit(false); // Starts transaction.
+            PreparedStatement esqueletoInsert = connection.prepareStatement(insertSQL);
             esqueletoInsert.setString(1, novoAluno.getNome());
             esqueletoInsert.setInt(2, novoAluno.getNumero());
             esqueletoInsert.setString(3, novoAluno.getTurma());
             esqueletoInsert.setString(4, novoAluno.getContacto());
-
-            // Execute the INSERT statement
-            int affectedRows = esqueletoInsert.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new SQLException("Creating aluno failed, no rows affected.");
+            esqueletoInsert.executeUpdate();
+            int generatedKey=-1;
+            statement = connection.createStatement();
+            ResultSet generatedKeys = statement.executeQuery("SELECT last_insert_rowid()");
+            if (generatedKeys.next()) {
+                generatedKey = generatedKeys.getInt(1);
+                novoAluno.setId(generatedKey); // Set the ID in your AlunoModel
+                connection.commit(); // Commits transaction.
+            }
+            else {
+                throw new SQLException("Falhou a criação do aluno.");
             }
 
+            System.out.println(generatedKey);
             // Retrieve the auto-generated ID(s)
-            try (ResultSet generatedKeys = esqueletoInsert.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    int generatedId = generatedKeys.getInt(1); // Get the generated ID
-                    novoAluno.setId(generatedId); // Set the ID in your AlunoModel
-                } else {
-                    throw new SQLException("Creating aluno failed, no ID obtained.");
-                }
-            }
-
             esqueletoInsert.close();
             connection.close();
 
@@ -101,8 +99,8 @@ public class AlunoDAO {
 
     public void inserirAluno(AlunoModel novoAluno)
     {
+        guardaNaBD(novoAluno);
         alunos.add(novoAluno);
-        mandaprala(novoAluno);
     }
 
 }
