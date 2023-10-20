@@ -11,7 +11,7 @@ public class AlunoDAO {
     private List<AlunoModel> alunos ;
     public AlunoDAO() {
         // SQLite database URL
-        url = "jdbc:sqlite:C:/Users/pafro/labinf.db";
+        url = "jdbc:sqlite:C:/Users/afoliveira/labinf.db";
         alunos = new ArrayList<>();
 
     }
@@ -72,7 +72,7 @@ public class AlunoDAO {
             Connection connection = DriverManager.getConnection(url);
 
             // Create a SELECT query to retrieve all records
-            String selectSQL = "SELECT * FROM Aluno";
+            String selectSQL = "SELECT * FROM Aluno ORDER BY Numero";
 
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(selectSQL);
