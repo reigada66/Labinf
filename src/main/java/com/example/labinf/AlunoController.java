@@ -1,11 +1,13 @@
 package com.example.labinf;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 
 import java.util.List;
@@ -16,6 +18,9 @@ public class AlunoController {
     private AlunoDAO alunoDAO;
     private List<AlunoModel> alunos;
     private int registoAtual = -1;
+
+    @FXML
+    private TableView<AlunoModel> alunosTableView;
 
     @FXML
     private Button btnAnterior;
@@ -126,7 +131,6 @@ public class AlunoController {
         txtContacto.setText(aluno.getContacto());
     }
 
-    // ... Existing code ...
 
     @FXML
     private void initialize() {
@@ -136,6 +140,81 @@ public class AlunoController {
             registoAtual = 0;
             mostraAluno();
         }
+        ChangeListener<String> userTextChangeListener = new ChangeListener<String>() {
+            boolean changedByUser = false;
+
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (changedByUser) {
+                    btnSeguinte.setDisable(true);
+                    btnAnterior.setDisable(true);
+                }
+            }
+        };
+
+        txtNome.textProperty().addListener(userTextChangeListener);
+        txtTurma.textProperty().addListener(userTextChangeListener);
+        txtContacto.textProperty().addListener(userTextChangeListener);
+        txtNumero.textProperty().addListener(userTextChangeListener);
+
+        // Add a listener to the text fields to mark changes made by the user
+        txtNome.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                userTextChangeListener.changed(observable, oldValue, newValue);
+                userTextChangeListener.changed(null, null, null);
+            }
+        });
+
+        txtTurma.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                userTextChangeListener.changed(observable, oldValue, newValue);
+                userTextChangeListener.changed(null, null, null);
+            }
+        });
+
+        txtContacto.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                userTextChangeListener.changed(observable, oldValue, newValue);
+                userTextChangeListener.changed(null, null, null);
+            }
+        });
+
+        txtNumero.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                userTextChangeListener.changed(observable, oldValue, newValue);
+                userTextChangeListener.changed(null, null, null);
+            }
+        });
+
+        TableColumn<AlunoModel, Integer> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        TableColumn<AlunoModel, String> nomeColumn = new TableColumn<>("Nome");
+        nomeColumn.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        TableColumn<AlunoModel, Integer> numeroColumn = new TableColumn<>("Número");
+        numeroColumn.setCellValueFactory(new PropertyValueFactory<>("numero"));
+        TableColumn<AlunoModel, String> turmaColumn = new TableColumn<>("Turma");
+        turmaColumn.setCellValueFactory(new PropertyValueFactory<>("turma"));
+        TableColumn<AlunoModel, String> contactoColumn = new TableColumn<>("Contacto");
+        contactoColumn.setCellValueFactory(new PropertyValueFactory<>("contacto"));
+
+        // Add columns to the TableView
+        alunosTableView.getColumns().setAll(idColumn, nomeColumn, numeroColumn, turmaColumn, contactoColumn);
+
+        // Populate the TableView with data from alunos list
+        ObservableList<AlunoModel> observableAlunos = FXCollections.observableArrayList(alunos);
+        alunosTableView.setItems(observableAlunos);
+
+        alunosTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                // Update the text fields with the selected AlunoModel's data
+                txtNumero.setText(String.valueOf(newSelection.getNumero()));
+                txtNome.setText(newSelection.getNome());
+                txtTurma.setText(newSelection.getTurma());
+                txtContacto.setText(newSelection.getContacto());
+            }
+        });
+
     }
 
 }
+
