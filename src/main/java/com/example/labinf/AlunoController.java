@@ -32,6 +32,10 @@ public class AlunoController {
     private Button btnOk;
 
     @FXML
+    private Button btnCancelar;
+
+
+    @FXML
     private Button btnSeguinte;
 
     @FXML
@@ -68,6 +72,10 @@ public class AlunoController {
         btnInserir.setVisible(false);
         btnOk.setDisable(false);
         btnOk.setVisible(true);
+        btnCancelar.setVisible(true);
+        btnCancelar.setDisable(false);
+        btnAnterior.setDisable(true);
+        btnSeguinte.setDisable(true);
 
     }
     @FXML
@@ -94,6 +102,16 @@ public class AlunoController {
             btnOk.setVisible(false);
 
         }
+    }
+
+    @FXML
+    void cancelaInserir(ActionEvent event) {
+        btnCancelar.setVisible(false);
+        btnCancelar.setDisable(true);
+        btnAnterior.setDisable(false);
+        btnSeguinte.setDisable(false);
+        mostraAluno();
+
     }
 
     int validaNumero(String snumero){
