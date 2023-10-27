@@ -11,7 +11,7 @@ public class AlunoDAO {
     private List<AlunoModel> alunos ;
     public AlunoDAO() {
         // SQLite database URL
-        url = "jdbc:sqlite:C:/Users/afoliveira/labinf.db";
+        url = "jdbc:sqlite:C:/Users/pafro/labinf.db";
         alunos = new ArrayList<>();
 
     }
