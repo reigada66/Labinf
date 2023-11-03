@@ -28,6 +28,10 @@ public class AlunoController {
     private Button btnInserir;
 
     @FXML
+    private Button btnEliminar;
+
+
+    @FXML
     private Button btnOk;
 
     @FXML
@@ -67,16 +71,25 @@ public class AlunoController {
         txtNumero.setText("");
         txtTurma.setText("");
         txtContacto.setText("");
-        btnInserir.setDisable(true);
-        btnInserir.setVisible(false);
-        btnOk.setDisable(false);
-        btnOk.setVisible(true);
-        btnCancelar.setVisible(true);
-        btnCancelar.setDisable(false);
-        btnAnterior.setDisable(true);
-        btnSeguinte.setDisable(true);
+        permiteNavegar(false);
 
     }
+
+    private void permiteNavegar(boolean ativa){
+        btnInserir.setDisable(!ativa);
+        btnEliminar.setDisable(!ativa);
+//        btnInserir.setVisible(false);
+        btnOk.setDisable(ativa);
+        btnOk.setVisible(!ativa);
+        btnCancelar.setVisible(!ativa);
+        btnCancelar.setDisable(ativa);
+        btnAnterior.setDisable(!ativa);
+        btnSeguinte.setDisable(!ativa);
+        alunosTableView.setDisable(!ativa);
+
+    }
+
+
     @FXML
     void confirmaInserir(ActionEvent event) {
         int nr = validaNumero(txtNumero.getText());
@@ -95,20 +108,13 @@ public class AlunoController {
             aluno.setContacto(txtContacto.getText());
             aluno.setTurma(txtTurma.getText());
             alunoDAO.inserirAluno(aluno);
-            btnInserir.setDisable(false);
-            btnInserir.setVisible(true);
-            btnOk.setDisable(true);
-            btnOk.setVisible(false);
-
+            permiteNavegar(true);
         }
     }
 
     @FXML
     void cancelaInserir(ActionEvent event) {
-        btnCancelar.setVisible(false);
-        btnCancelar.setDisable(true);
-        btnAnterior.setDisable(false);
-        btnSeguinte.setDisable(false);
+        permiteNavegar(true);
         mostraAluno();
 
     }
@@ -123,6 +129,14 @@ public class AlunoController {
         }
         return valor;
     }
+
+    @FXML
+    void eliminarAluno(ActionEvent event) {
+        alunoDAO.apagaAluno(alunos.get(registoAtual),registoAtual);
+        mostraAluno();  // problema se eliminar o último aluno da lista
+
+    }
+
 
     @FXML
     void seguinte(ActionEvent event) {
@@ -197,7 +211,8 @@ public class AlunoController {
             if (newSelection != null) {
                 // Update the text fields with the selected AlunoModel's data
                 registoAtual = alunos.indexOf(newSelection);
-                mostraAluno();            }
+                mostraAluno();
+            }
         });
 
     }

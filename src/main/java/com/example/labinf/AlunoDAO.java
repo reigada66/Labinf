@@ -66,6 +66,33 @@ public class AlunoDAO {
         }
     }
 
+    public void apagaNaBD(AlunoModel aluno) {
+        try {
+            // Create a connection to the database
+            Connection connection = DriverManager.getConnection(url);
+
+            String deleteSQL = "DELETE FROM Aluno WHERE idAluno = ?";
+
+            // Specify that you want to retrieve the generated keys
+            connection.setAutoCommit(false); // Starts transaction.
+            PreparedStatement deleteStatement = connection.prepareStatement(deleteSQL);
+            deleteStatement.setInt(1, aluno.getId()); // Assuming getId() returns the student's ID
+            int rowsAffected = deleteStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                connection.commit(); // Commits transaction.
+            } else {
+                throw new SQLException("Falhou a exclusão do aluno.");
+            }
+
+            deleteStatement.close();
+            connection.close();
+
+            System.out.println("Aluno eliminado com sucesso!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public List<AlunoModel> sacaTodosAlunos() {
 
         try {
@@ -101,6 +128,15 @@ public class AlunoDAO {
     {
         guardaNaBD(novoAluno);
         alunos.add(novoAluno);
+    }
+
+    public void apagaAluno(AlunoModel saiAluno, int indiceLista)
+    {
+        // elimina aluno da base de dados
+        apagaNaBD(saiAluno);
+        // elimina na lista em memória
+        alunos.remove(indiceLista);
+
     }
 
 }
