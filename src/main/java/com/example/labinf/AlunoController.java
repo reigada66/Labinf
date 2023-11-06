@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AlunoController {
@@ -16,11 +17,12 @@ public class AlunoController {
     private AlunoDAO alunoDAO;
     private List<AlunoModel> alunos;
     private int registoAtual = -1;
+    private boolean novo = false;
 
     @FXML
     private TableView<AlunoModel> alunosTableView;
     private boolean alteradoPorCodigo = false;
-    private String valorOriginal;
+    private String[] valorOriginal = new String[4];
     @FXML
     private Button btnAnterior;
 
@@ -71,6 +73,7 @@ public class AlunoController {
         txtNumero.setText("");
         txtTurma.setText("");
         txtContacto.setText("");
+        novo= true;
         permiteNavegar(false);
 
     }
@@ -102,12 +105,17 @@ public class AlunoController {
             alert.show();
         }
         else{
-            AlunoModel aluno = new AlunoModel();
             aluno.setNumero(nr);
             aluno.setNome(txtNome.getText());
             aluno.setContacto(txtContacto.getText());
             aluno.setTurma(txtTurma.getText());
-            alunoDAO.inserirAluno(aluno);
+            if (novo){
+                AlunoModel aluno = new AlunoModel();
+                alunoDAO.inserirAluno(aluno);
+            }
+            else{
+                alunoDAO.atualizaAluno(aluno);
+            }
             permiteNavegar(true);
         }
     }
@@ -157,16 +165,13 @@ public class AlunoController {
     private void mostraAluno() {
         AlunoModel aluno = alunos.get(registoAtual);
         alteradoPorCodigo = true;
-        valorOriginal = String.valueOf(aluno.getNumero());
+        valorOriginal[0] = String.valueOf(aluno.getNumero());
         txtNumero.setText(String.valueOf(aluno.getNumero()));
-        alteradoPorCodigo = true;
-        valorOriginal = aluno.getNome();
+        valorOriginal[1] = aluno.getNome();
         txtNome.setText(aluno.getNome());
-        alteradoPorCodigo = true;
-        valorOriginal = aluno.getTurma();
+        valorOriginal[2] = aluno.getTurma();
         txtTurma.setText(aluno.getTurma());
-        alteradoPorCodigo = true;
-        valorOriginal = aluno.getContacto();
+        valorOriginal[3] = aluno.getContacto();
         txtContacto.setText(aluno.getContacto());
     }
 
@@ -184,10 +189,10 @@ public class AlunoController {
         addChangeListener(txtContacto);
         addChangeListener(txtNumero);
 */
-        addFocusChangeListener(txtNome);
-        addFocusChangeListener(txtTurma);
-        addFocusChangeListener(txtContacto);
-        addFocusChangeListener(txtNumero);
+        addFocusChangeListener(txtNome,1);
+        addFocusChangeListener(txtTurma,2);
+        addFocusChangeListener(txtContacto, 3);
+        addFocusChangeListener(txtNumero,0);
 
         TableColumn<AlunoModel, Integer> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -231,23 +236,15 @@ public class AlunoController {
     }
 */
 
-    private void addFocusChangeListener(TextField textField) {
+    private void addFocusChangeListener(TextField textField, int indField) {
 
         textField.focusedProperty().addListener((obs, oldFocus, newFocus) -> {
             if (!newFocus) { // Focus is lost
                 System.out.println(textField.getText());
-                if(!alteradoPorCodigo) {
-                    String newValue = textField.getText();
-                    if (!newValue.equals(valorOriginal)) { // Value has changed
-                        btnSeguinte.setDisable(true);
-                        btnAnterior.setDisable(true);
-                    }
+                String newValue = textField.getText();
+                if (!newValue.equals(valorOriginal[indField])) { // Value has changed
+                    permiteNavegar(false);
                 }
-                System.out.println(alteradoPorCodigo);
-
-                // Repor a bandeira
-                alteradoPorCodigo = false;
-
             }
         });
     }
