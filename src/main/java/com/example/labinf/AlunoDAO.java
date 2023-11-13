@@ -8,15 +8,13 @@ import java.util.List;
 public class AlunoDAO {
 
     private String url;
-    private List<AlunoModel> alunos ;
     public AlunoDAO() {
         // SQLite database URL
-        url = "jdbc:sqlite:C:/Users/afoliveira/labinf.db";
-        alunos = new ArrayList<>();
+        url = "jdbc:sqlite:C:/Users/pafro/labinf.db";
 
     }
 
-    public void guardaNaBD(AlunoModel novoAluno) {
+    public void insereNaBD(AlunoModel novoAluno) {
 
         try {
             // Create a connection to the database
@@ -94,6 +92,7 @@ public class AlunoDAO {
     }
 
     public List<AlunoModel> sacaTodosAlunos() {
+        List<AlunoModel> alunos = new ArrayList<>();
 
         try {
             Connection connection = DriverManager.getConnection(url);
@@ -124,19 +123,38 @@ public class AlunoDAO {
         return alunos;
     }
 
-    public void inserirAluno(AlunoModel novoAluno)
-    {
-        guardaNaBD(novoAluno);
-        alunos.add(novoAluno);
+
+    public void atualizaNaBD(AlunoModel alunoAtualizado) {
+        try {
+            // Create a connection to the database
+            Connection connection = DriverManager.getConnection(url);
+
+            String updateSQL = "UPDATE Aluno SET Nome = ?, Numero = ?, Turma = ?, Contacto = ? WHERE idAluno = ?";
+
+            // Specify that you want to retrieve the generated keys
+            connection.setAutoCommit(false); // Starts transaction.
+            PreparedStatement esqueletoUpdate = connection.prepareStatement(updateSQL);
+            esqueletoUpdate.setString(1, alunoAtualizado.getNome());
+            esqueletoUpdate.setInt(2, alunoAtualizado.getNumero());
+            esqueletoUpdate.setString(3, alunoAtualizado.getTurma());
+            esqueletoUpdate.setString(4, alunoAtualizado.getContacto());
+            esqueletoUpdate.setInt(5, alunoAtualizado.getId()); // Assuming getId() returns the student's ID
+
+            int rowsUpdated = esqueletoUpdate.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                connection.commit(); // Commits transaction.
+            } else {
+                throw new SQLException("Falhou a atualização do aluno.");
+            }
+
+            // Close the PreparedStatement and connection
+            esqueletoUpdate.close();
+            connection.close();
+
+            System.out.println("Aluno atualizado com sucesso!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
-
-    public void apagaAluno(AlunoModel saiAluno, int indiceLista)
-    {
-        // elimina aluno da base de dados
-        apagaNaBD(saiAluno);
-        // elimina na lista em memória
-        alunos.remove(indiceLista);
-
-    }
-
 }

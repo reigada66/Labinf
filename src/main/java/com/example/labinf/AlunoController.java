@@ -8,21 +8,21 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AlunoController {
 
 
     private AlunoDAO alunoDAO;
-    private List<AlunoModel> alunos;
+    private ObservableList<AlunoModel> alunos;
     private int registoAtual = -1;
-    private boolean novo = false;
+    private boolean novo = false, alteradoPorCodigo = true, alteradoPeloUtilizador = false;
+
+    private String[] valorOriginal = new String[4];
+
 
     @FXML
     private TableView<AlunoModel> alunosTableView;
-    private boolean alteradoPorCodigo = false;
-    private String[] valorOriginal = new String[4];
     @FXML
     private Button btnAnterior;
 
@@ -62,7 +62,8 @@ public class AlunoController {
     private TextField txtNome;
 
     @FXML
-    private TextField txtNumero;
+    private Spinner<Integer> spNumero;
+    SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 40, 1); // valores mínimo, máximo e passo
 
     @FXML
     private TextField txtTurma;
@@ -70,12 +71,11 @@ public class AlunoController {
     @FXML
     void inserirAluno(ActionEvent event) {
         txtNome.setText("");
-        txtNumero.setText("");
+        spNumero.getValueFactory().setValue(50);
         txtTurma.setText("");
         txtContacto.setText("");
-        novo= true;
         permiteNavegar(false);
-
+        novo = true;
     }
 
     private void permiteNavegar(boolean ativa){
@@ -95,36 +95,35 @@ public class AlunoController {
 
     @FXML
     void confirmaInserir(ActionEvent event) {
-        int nr = validaNumero(txtNumero.getText());
-        if (nr == 0)
-        {
-            Alert alert = new Alert (Alert.AlertType.ERROR);
-            alert.setTitle("Erro");
-            alert.setHeaderText("Gestão de Alunos");
-            alert.setContentText("Número de aluno inválido!");
-            alert.show();
+        if (novo){
+            AlunoModel novoAluno = new AlunoModel();
+            novoAluno.setNumero(spNumero.getValue());
+            novoAluno.setNome(txtNome.getText());
+            novoAluno.setContacto(txtContacto.getText());
+            novoAluno.setTurma(txtTurma.getText());
+            alunoDAO.insereNaBD(novoAluno);
+            alunos.add(novoAluno);
+            novo = false;
         }
         else{
-            aluno.setNumero(nr);
-            aluno.setNome(txtNome.getText());
-            aluno.setContacto(txtContacto.getText());
-            aluno.setTurma(txtTurma.getText());
-            if (novo){
-                AlunoModel aluno = new AlunoModel();
-                alunoDAO.inserirAluno(aluno);
-            }
-            else{
-                alunoDAO.atualizaAluno(aluno);
-            }
-            permiteNavegar(true);
+            AlunoModel alunoAlterado = alunos.get(registoAtual);
+            alunoAlterado.setNumero(spNumero.getValue());
+            alunoAlterado.setNome(txtNome.getText());
+            alunoAlterado.setContacto(txtContacto.getText());
+            alunoAlterado.setTurma(txtTurma.getText());
+            alunoDAO.atualizaNaBD(alunoAlterado);
+            alunos.set(registoAtual, alunoAlterado);
         }
+        permiteNavegar(true);
+        alteradoPeloUtilizador = false;
+        mostraAluno();
     }
 
     @FXML
     void cancelaInserir(ActionEvent event) {
         permiteNavegar(true);
+        alteradoPeloUtilizador = false;
         mostraAluno();
-
     }
 
     int validaNumero(String snumero){
@@ -140,9 +139,16 @@ public class AlunoController {
 
     @FXML
     void eliminarAluno(ActionEvent event) {
-        alunoDAO.apagaAluno(alunos.get(registoAtual),registoAtual);
-        mostraAluno();  // problema se eliminar o último aluno da lista
-
+        alunoDAO.apagaNaBD(alunos.get(registoAtual));
+        // elimina na lista em memória
+        alunos.remove(registoAtual);
+        if (registoAtual > alunos.size() - 1) {
+            registoAtual = 0;
+            if (!alunos.isEmpty())
+                mostraAluno();
+        }
+        else
+            mostraAluno();
     }
 
 
@@ -165,35 +171,34 @@ public class AlunoController {
     private void mostraAluno() {
         AlunoModel aluno = alunos.get(registoAtual);
         alteradoPorCodigo = true;
-        valorOriginal[0] = String.valueOf(aluno.getNumero());
-        txtNumero.setText(String.valueOf(aluno.getNumero()));
-        valorOriginal[1] = aluno.getNome();
+        spNumero.getValueFactory().setValue(aluno.getNumero());
         txtNome.setText(aluno.getNome());
-        valorOriginal[2] = aluno.getTurma();
         txtTurma.setText(aluno.getTurma());
-        valorOriginal[3] = aluno.getContacto();
         txtContacto.setText(aluno.getContacto());
+        alteradoPorCodigo = false;
     }
 
 
     @FXML
     private void initialize() {
+        spNumero.setValueFactory(valueFactory);
+
         alunoDAO = new AlunoDAO();
-        alunos = alunoDAO.sacaTodosAlunos();
+        alunos = FXCollections.observableArrayList(alunoDAO.sacaTodosAlunos());
         if (!alunos.isEmpty()) {
             registoAtual = 0;
             mostraAluno();
         }
-/*        addChangeListener(txtNome);
+        addChangeListener(txtNome);
         addChangeListener(txtTurma);
         addChangeListener(txtContacto);
-        addChangeListener(txtNumero);
-*/
-        addFocusChangeListener(txtNome,1);
+        addspChangeListener(spNumero);
+
+/*        addFocusChangeListener(txtNome,1);
         addFocusChangeListener(txtTurma,2);
         addFocusChangeListener(txtContacto, 3);
         addFocusChangeListener(txtNumero,0);
-
+*/
         TableColumn<AlunoModel, Integer> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         TableColumn<AlunoModel, String> nomeColumn = new TableColumn<>("Nome");
@@ -208,9 +213,7 @@ public class AlunoController {
         // Add columns to the TableView
         alunosTableView.getColumns().setAll(idColumn, nomeColumn, numeroColumn, turmaColumn, contactoColumn);
 
-        // Populate the TableView with data from alunos list
-        ObservableList<AlunoModel> observableAlunos = FXCollections.observableArrayList(alunos);
-        alunosTableView.setItems(observableAlunos);
+        alunosTableView.setItems(alunos);
 
         alunosTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
@@ -222,25 +225,34 @@ public class AlunoController {
 
     }
 
- /*   private void addChangeListener(TextField textField) {
+    private void addChangeListener(TextField textField) {
         textField.textProperty().addListener((obs, oldValue, newValue) -> {
-            System.out.println(obs.getValue());
-            if (!alteradoPorCodigo) { // foi alterado pelo utilizador
-                btnSeguinte.setDisable(true);
-                btnAnterior.setDisable(true);
+            if (!alteradoPeloUtilizador) {
+                System.out.println(obs.getValue());
+                if (!alteradoPorCodigo) { // foi alterado pelo utilizador
+                    alteradoPeloUtilizador = true;
+                    permiteNavegar(false);
+                }
+                System.out.println(alteradoPorCodigo);
             }
-            System.out.println(alteradoPorCodigo);
-            // Repor a bandeira
-            alteradoPorCodigo = false;
         });
     }
-*/
 
-    private void addFocusChangeListener(TextField textField, int indField) {
+    private void addspChangeListener(Spinner<Integer> spinner ) {
+        spinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            // This code block will be executed when the Spinner's value changes
+            int newNumber = newValue; // Get the new value of the Spinner
+            // You can now handle the new value as needed
+            System.out.println("Spinner value changed to: " + newNumber);
+        });
+    }
+
+
+/*    private void addFocusChangeListener(TextField textField, int indField) {
 
         textField.focusedProperty().addListener((obs, oldFocus, newFocus) -> {
             if (!newFocus) { // Focus is lost
-                System.out.println(textField.getText());
+                System.out.println("controlo; " + textField.getText() + "  original; " + valorOriginal[indField]);
                 String newValue = textField.getText();
                 if (!newValue.equals(valorOriginal[indField])) { // Value has changed
                     permiteNavegar(false);
@@ -248,5 +260,6 @@ public class AlunoController {
             }
         });
     }
+*/
 }
 
