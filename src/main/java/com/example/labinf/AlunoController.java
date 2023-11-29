@@ -169,8 +169,9 @@ public class AlunoController {
     }
 
     @FXML
-    private void escolheTurma() {
-
+    void escolheTurma(ActionEvent event) {
+        String turma = lstTurma.getValue();
+        todosAlunos.stream().filter(a -> a.getTurma().equals(turma)).forEach(a -> System.out.println(a.getNome()));
     }
 
     @FXML
@@ -183,6 +184,17 @@ public class AlunoController {
         if (!alunos.isEmpty()) {
             registoAtual = 0;
         }
+        ObservableList<String> listaTurmas = FXCollections.observableArrayList(alunos.stream()  // Percorre a lista de alunos
+                .map(AlunoModel::getTurma) // obtem a turma de cada aluno
+                .distinct() // Remove duplicados, se houver
+                .sorted()   // ordena a sequência por ordem alfabética natural
+                .collect(Collectors.toList())); // converte o resultado numa lista
+
+        listaTurmas.add("Todas elas");
+
+        lstTurma.setItems(listaTurmas);
+
+        System.out.println(listaTurmas);
 
         addChangeListener(txtNome);
         addChangeListener((txtContacto));
