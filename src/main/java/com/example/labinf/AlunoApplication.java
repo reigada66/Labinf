@@ -10,7 +10,7 @@ import java.io.IOException;
 public class AlunoApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(AlunoApplication.class.getResource("aluno-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(AlunoApplication.class.getResource("pc-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 800, 600);
         stage.setTitle("Equipamento informático");
         stage.setScene(scene);

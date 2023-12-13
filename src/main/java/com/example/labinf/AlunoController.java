@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import java.util.Comparator;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +17,9 @@ public class AlunoController {
 
     private AlunoDAO alunoDAO;
     private ObservableList<AlunoModel> alunos;
+
+    private TableColumn<AlunoModel, ?> lastSortedColumn;
+
 
     private List<AlunoModel> todosAlunos;
     private ObservableList<String> turmas;
@@ -66,6 +70,9 @@ public class AlunoController {
 
     @FXML
     private TextField txtContacto;
+
+    @FXML
+    private TextField txtPesquisa;
 
     @FXML
     private TextField txtNome;
@@ -171,7 +178,12 @@ public class AlunoController {
     @FXML
     void escolheTurma(ActionEvent event) {
         String turma = lstTurma.getValue();
-        todosAlunos.stream().filter(a -> a.getTurma().equals(turma)).forEach(a -> System.out.println(a.getNome()));
+        if (turma.equals("Todas elas")){
+            alunos.setAll(FXCollections.observableArrayList(todosAlunos));
+            System.out.println(turma);
+        }
+        else
+            alunos.setAll(FXCollections.observableArrayList(todosAlunos.stream().filter(a -> a.getTurma().equals(turma)).collect(Collectors.toList())));
     }
 
     @FXML
@@ -200,6 +212,8 @@ public class AlunoController {
         addChangeListener((txtContacto));
         addChangeListener(txtTurma);
 
+        reageaPesquisa(txtPesquisa);
+
 
         spNumero.getValueFactory().valueProperty().bindBidirectional(aluno.numeroProperty().asObject());
         txtNome.textProperty().bindBidirectional(aluno.nomeProperty());
@@ -211,6 +225,7 @@ public class AlunoController {
         TableColumn<AlunoModel, Integer> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         TableColumn<AlunoModel, String> nomeColumn = new TableColumn<>("Nome");
+        nomeColumn.setPrefWidth(140);
         nomeColumn.setCellValueFactory(new PropertyValueFactory<>("nome"));
         TableColumn<AlunoModel, Integer> numeroColumn = new TableColumn<>("Número");
         numeroColumn.setCellValueFactory(new PropertyValueFactory<>("numero"));
@@ -218,6 +233,7 @@ public class AlunoController {
         turmaColumn.setCellValueFactory(new PropertyValueFactory<>("turma"));
         TableColumn<AlunoModel, String> contactoColumn = new TableColumn<>("Contacto");
         contactoColumn.setCellValueFactory(new PropertyValueFactory<>("contacto"));
+        lastSortedColumn = numeroColumn; //  "numeroColumn" é a ordem inicial
 
         // Add columns to the TableView
         alunosTableView.getColumns().setAll(idColumn, nomeColumn, numeroColumn, turmaColumn, contactoColumn);
@@ -240,5 +256,11 @@ public class AlunoController {
         });
     }
 
+    private void reageaPesquisa(TextField textField) {
+        textField.textProperty().addListener((obs, oldValue, newValue) -> {
+            alunos.setAll(FXCollections.observableArrayList(alunos.stream().filter(a -> a.getNome().contains(newValue)).collect(Collectors.toList())));
+
+        });
+    }
 
 }
