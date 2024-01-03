@@ -100,22 +100,29 @@ public class PcController {
         btnCancelar.setDisable(ativa);
         btnAnterior.setDisable(!ativa);
         btnSeguinte.setDisable(!ativa);
-//        pcsTableView.setDisable(!ativa);
+        pcsTableView.setDisable(!ativa);
 
     }
 
 
     @FXML
     void confirmaInserir(ActionEvent event) {
+        PcModel novoPc = new PcModel();
+        novoPc.setPc(pc);
         if (novo) {
             System.out.println("sala: " + pc.getSala() + " Marca: " + pc.getMarca() + " nrserie: " + pc.getNrSerie());
             pcDAO.insereNaBD(pc);
-            pcs.add(pc);
+            pcs.add(novoPc);
+            pc.setNumero(10);
+            registoAtual = pcs.size() - 1;
+            System.out.println(pcs.get(registoAtual).getNumero());
             novo = false;
         }
         else{
             pcDAO.atualizaNaBD(pc);
-            pcs.set(registoAtual,pc);
+            pcs.set(registoAtual,novoPc);
+            System.out.println("Confirma registo atual: " + registoAtual);
+            pcs.forEach(p -> System.out.println(p.getMarca()));
         }
         permiteNavegar(true);
         mostraPc();
@@ -124,6 +131,7 @@ public class PcController {
     @FXML
     void cancelaInserir(ActionEvent event) {
         permiteNavegar(true);
+        novo = false;
         mostraPc();
     }
 
@@ -171,7 +179,12 @@ public class PcController {
 
     private void mostraPc() {
         alteradoPorCodigo = true;
+        System.out.println("Mostra registo atual antes: " + registoAtual + " pcatual: " + pc.getMarca());
+        pcs.forEach(p -> System.out.println(p.getMarca()));
         pc.setPc(pcs.get(registoAtual));
+        System.out.println("Mostra registo atual antes: " + registoAtual + " pcatual: " + pc.getMarca());
+        pcs.forEach(p -> System.out.println(p.getMarca()));
+
         alteradoPorCodigo = false;
     }
 
@@ -214,7 +227,7 @@ public class PcController {
         addChangeListener(txtSala);
 
 
-/*        TableColumn<PcModel, Integer> idColumn = new TableColumn<>("ID");
+        TableColumn<PcModel, Integer> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         TableColumn<PcModel, String> marcaColumn = new TableColumn<>("Marca");
         marcaColumn.setPrefWidth(140);
@@ -236,18 +249,21 @@ public class PcController {
             if (newSelection != null) {
                 // Update the text fields with the selected PcModel's data
                 registoAtual = pcs.indexOf(newSelection);
+                System.out.println("selecao da tabela: " + registoAtual);
+                pcs.forEach(p -> System.out.println(p.getMarca()));
                 mostraPc();
             }
         });
-*/
+
         if (pcs.isEmpty()) {
-            pc.setPc(new PcModel());
             permiteNavegar(false);
             novo = true;
         }
-        //mostraPc();
-
+        else {
+            mostraPc();
+        }
     }
+
     private void addChangeListener(TextField textField) {
         textField.textProperty().addListener((obs, oldValue, newValue) -> {
             if (!alteradoPorCodigo)

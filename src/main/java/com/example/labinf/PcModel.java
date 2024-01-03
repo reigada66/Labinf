@@ -90,6 +90,7 @@ public class PcModel {
         numero.set(1);
     }
 
+
     public void setPc(PcModel original){
         setId(original.getId());
         setMarca(original.getMarca());

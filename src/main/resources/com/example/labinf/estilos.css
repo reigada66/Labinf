@@ -1,0 +1,30 @@
+.texto-geral{
+    -fx-font: Tahoma;
+}
+#label-escola {
+    -fx-font: 100px Tahoma;
+    -fx-text-fill: linear-gradient(from 0% 0% to 100% 100%, repeat, aqua 0%, red 50%);
+}
+
+.titulo{
+    -fx-font: 30px Georgia;
+    -fx-font-weight: bold;
+    -fx-text-fill: blue;
+}
+
+.custom-toolbar {
+    -fx-background-color: lightblue;
+}
+
+.custom-toolbar:hover {
+    -fx-background-color: lightcyan;
+}
+
+.custom-toolbar:pressed {
+    -fx-background-color: lightcoral;
+}
+
+.custom-toolbar .button {
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+}
