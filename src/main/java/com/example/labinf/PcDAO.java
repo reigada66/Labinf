@@ -1,18 +1,81 @@
 package com.example.labinf;
 
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class PcDAO {
 
+    private List<PcModel> pcs;
     private String url;
-    public PcDAO() {
-        // SQLite database URL
-        url = "jdbc:sqlite:C:/Users/pafro/labinf.db";
+
+
+    public List<PcModel> getPcs() {
+        return pcs;
+    }
+
+    public PcDAO(String url){
+        this.url = url;
 
     }
+
+    public void sacaTodosPcs(List<AlunoModel> listadeAlunos) {
+        pcs = new ArrayList<>();
+        List<OcupacaoModel> listadeOcupacao = new ArrayList<>();
+
+        try {
+            Connection connection = DriverManager.getConnection(url);
+
+            // Create a SELECT query to retrieve all records
+            String selectSQL = "select * from pc  left JOIN ocupacao ON PC.IdPC = ocupacao.IdPC ORDER BY IdPC";
+
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(selectSQL);
+            PcModel pc = new PcModel();
+            pc.setId(-1);
+            while (resultSet.next()) {
+                if (resultSet.getInt("idPc") != pc.getId()){
+                    pc = new PcModel();
+                    pc.setId(resultSet.getInt("idPc"));
+                    pc.setMarca(resultSet.getString("Marca"));
+                    pc.setNumero(resultSet.getInt("Numero"));
+                    pc.setSala(resultSet.getString("Sala"));
+                    pc.setNrSerie(resultSet.getString("NrSerie"));
+                    pcs.add(pc);
+                }
+
+                OcupacaoModel ocupacao = new OcupacaoModel();
+                ocupacao.setIdOcupacao(resultSet.getInt("IdOcupacao"));
+                ocupacao.setInicio(resultSet.getString("Inicio"));
+// Set the parsed date to your OcupacaoModel
+                ocupacao.setPC(pc);
+                Integer alunoId = resultSet.getInt("IdAluno");
+
+
+// Find the matching AlunoModel in the list alunos
+                AlunoModel matchingAluno = listadeAlunos.stream()
+                        .filter(aluno -> aluno.getId() == alunoId)
+                        .findFirst()
+                        .orElse(null);
+
+// Set the AlunoModel only if a matchingAluno was found
+                if (matchingAluno != null) {
+                    ocupacao.setAluno(matchingAluno);
+                }
+                pc.addOcupacao(ocupacao);
+            }
+
+            resultSet.close();
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void insereNaBD(PcModel novoPc) {
 
@@ -89,38 +152,6 @@ public class PcDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public List<PcModel> sacaTodosPcs() {
-        List<PcModel> pcs = new ArrayList<>();
-
-        try {
-            Connection connection = DriverManager.getConnection(url);
-
-            // Create a SELECT query to retrieve all records
-            String selectSQL = "SELECT * FROM PC ORDER BY Numero";
-
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(selectSQL);
-
-            while (resultSet.next()) {
-                PcModel pc = new PcModel();
-                pc.setId(resultSet.getInt("idPc"));
-                pc.setMarca(resultSet.getString("Marca"));
-                pc.setNumero(resultSet.getInt("Numero"));
-                pc.setSala(resultSet.getString("Sala"));
-                pc.setNrSerie(resultSet.getString("NrSerie"));
-                pcs.add(pc);
-            }
-
-            resultSet.close();
-            statement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return pcs;
     }
 
 

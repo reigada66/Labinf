@@ -17,18 +17,21 @@ public class AlunoController {
 
     private AlunoDAO alunoDAO;
     private ObservableList<AlunoModel> alunos;
-
     private TableColumn<AlunoModel, ?> lastSortedColumn;
-
-
-    private List<AlunoModel> todosAlunos;
     private ObservableList<String> turmas;
     private AlunoModel aluno = new AlunoModel();
     private boolean alteradoPorCodigo = true, novo = false;
-
     private int registoAtual = -1;
 //    private boolean novo = false, alteradoPorCodigo = true, alteradoPeloUtilizador = false;
 
+
+    public AlunoDAO getAlunoDAO() {
+        return alunoDAO;
+    }
+
+    public void setAlunoDAO(AlunoDAO alunoDAO) {
+        this.alunoDAO = alunoDAO;
+    }
 
     @FXML
     private TableView<AlunoModel> alunosTableView;
@@ -179,20 +182,18 @@ public class AlunoController {
     void escolheTurma(ActionEvent event) {
         String turma = lstTurma.getValue();
         if (turma.equals("Todas elas")){
-            alunos.setAll(FXCollections.observableArrayList(todosAlunos));
+            alunos.setAll(FXCollections.observableArrayList(alunoDAO.getTodosAlunos()));
             System.out.println(turma);
         }
         else
-            alunos.setAll(FXCollections.observableArrayList(todosAlunos.stream().filter(a -> a.getTurma().equals(turma)).collect(Collectors.toList())));
+            alunos.setAll(FXCollections.observableArrayList(alunoDAO.getTodosAlunos().stream().filter(a -> a.getTurma().equals(turma)).collect(Collectors.toList())));
     }
 
-    @FXML
-    private void initialize() {
-        spNumero.setValueFactory(valueFactory);
+    public void  inicia(AlunoDAO alunoDAO){
+        this.alunoDAO = alunoDAO;
+        alunos = FXCollections.observableArrayList(alunoDAO.getTodosAlunos());
+        System.out.println(alunos.stream().count());
 
-        alunoDAO = new AlunoDAO();
-        todosAlunos = alunoDAO.sacaTodosAlunos();
-        alunos = FXCollections.observableArrayList(todosAlunos);
         if (!alunos.isEmpty()) {
             registoAtual = 0;
         }
@@ -207,20 +208,6 @@ public class AlunoController {
         lstTurma.setItems(listaTurmas);
 
         System.out.println(listaTurmas);
-
-        addChangeListener(txtNome);
-        addChangeListener((txtContacto));
-        addChangeListener(txtTurma);
-
-        reageaPesquisa(txtPesquisa);
-
-
-        spNumero.getValueFactory().valueProperty().bindBidirectional(aluno.numeroProperty().asObject());
-        txtNome.textProperty().bindBidirectional(aluno.nomeProperty());
-        txtTurma.textProperty().bindBidirectional(aluno.turmaProperty());
-        txtContacto.textProperty().bindBidirectional(aluno.contactoProperty());
-        mostraAluno();
-
 
         TableColumn<AlunoModel, Integer> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -247,8 +234,33 @@ public class AlunoController {
                 mostraAluno();
             }
         });
+        mostraAluno();
+    }
+    @FXML
+    private void initialize() {
+        spNumero.setValueFactory(valueFactory);
+
+
+        addChangeListener(txtNome);
+        addChangeListener((txtContacto));
+        addChangeListener(txtTurma);
+
+        reageaPesquisa(txtPesquisa);
+
+
+        spNumero.getValueFactory().valueProperty().bindBidirectional(aluno.numeroProperty().asObject());
+        txtNome.textProperty().bindBidirectional(aluno.nomeProperty());
+        txtTurma.textProperty().bindBidirectional(aluno.turmaProperty());
+        txtContacto.textProperty().bindBidirectional(aluno.contactoProperty());
+
+
 
     }
+
+    public ObservableList<AlunoModel> getAlunosList() {
+        return alunos;
+    }
+
     private void addChangeListener(TextField textField) {
         textField.textProperty().addListener((obs, oldValue, newValue) -> {
             if (!alteradoPorCodigo)

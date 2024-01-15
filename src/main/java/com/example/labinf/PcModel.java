@@ -4,6 +4,9 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PcModel {
 
     private int id;
@@ -15,6 +18,7 @@ public class PcModel {
     private SimpleStringProperty nrSerie = new SimpleStringProperty();
 
     private SimpleBooleanProperty estado = new SimpleBooleanProperty();
+    private List<OcupacaoModel> pcOcupacao;
 
     // Getter and Setter methods for properties
     public int getId() {
@@ -88,8 +92,20 @@ public class PcModel {
     public PcModel(){
         marca.set("Dell");
         numero.set(1);
+        pcOcupacao = new ArrayList<>();
     }
 
+    public List<OcupacaoModel> getPcOcupacao() {
+        return pcOcupacao;
+    }
+
+    public void setPcOcupacao(List<OcupacaoModel> pcOcupacao) {
+        this.pcOcupacao = pcOcupacao;
+    }
+
+    public void addOcupacao(OcupacaoModel ocupacao){
+        pcOcupacao.add(ocupacao);
+    }
 
     public void setPc(PcModel original){
         setId(original.getId());
@@ -99,4 +115,39 @@ public class PcModel {
         setSala(original.getSala());
         setEstado(original.getEstado());
     }
+
+    public void printPcData() {
+        System.out.println("PC Data:");
+        System.out.println("ID: " + getId());
+        System.out.println("Marca: " + getMarca());
+        System.out.println("Número: " + getNumero());
+        System.out.println("Sala: " + getSala());
+        System.out.println("Número de Série: " + getNrSerie());
+        System.out.println("Estado: " + getEstado());
+
+        if (pcOcupacao != null && !pcOcupacao.isEmpty()) {
+            System.out.println("\nOcupacao List:");
+
+            for (OcupacaoModel ocupacao : pcOcupacao) {
+                System.out.println("\nOcupacao Data:");
+                System.out.println("ID: " + ocupacao.getIdOcupacao());
+                System.out.println("Inicio: " + ocupacao.getInicio());
+
+                // Check if Ocupacao has an associated Aluno
+                if (ocupacao.getAluno() != null) {
+                    System.out.println("\nAluno Data:");
+                    System.out.println("ID: " + ocupacao.getAluno().getId());
+                    System.out.println("Nome: " + ocupacao.getAluno().getNome());
+                    System.out.println("Número: " + ocupacao.getAluno().getNumero());
+                    System.out.println("Turma: " + ocupacao.getAluno().getTurma());
+                    System.out.println("Contacto: " + ocupacao.getAluno().getContacto());
+                } else {
+                    System.out.println("No Aluno assigned to this Ocupacao.");
+                }
+            }
+        } else {
+            System.out.println("No Ocupacao assigned to this PC.");
+        }
+    }
+
 }

@@ -7,12 +7,47 @@ import java.util.List;
 
 public class AlunoDAO {
 
-    private String url;
-    public AlunoDAO() {
-        // SQLite database URL
-        url = "jdbc:sqlite:C:/Users/pafro/labinf.db";
+    private final String url;
+    private List<AlunoModel> todosAlunos;
+    public AlunoDAO(String url) {
+            this.url = url;
+    }
+
+    public List<AlunoModel> getTodosAlunos() {
+        return todosAlunos;
+    }
+
+    public void sacaTodosAlunos() {
+        todosAlunos = new ArrayList<>();
+
+        try {
+            Connection connection = DriverManager.getConnection(url);
+
+            // Create a SELECT query to retrieve all records
+            String selectSQL = "SELECT * FROM Aluno ORDER BY Numero";
+
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(selectSQL);
+
+            while (resultSet.next()) {
+                AlunoModel aluno = new AlunoModel();
+                aluno.setId(resultSet.getInt("idAluno"));
+                aluno.setNome(resultSet.getString("Nome"));
+                aluno.setNumero(resultSet.getInt("Numero"));
+                aluno.setTurma(resultSet.getString("Turma"));
+                aluno.setContacto(resultSet.getString("Contacto"));
+                todosAlunos.add(aluno);
+            }
+
+            resultSet.close();
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
+
 
     public void insereNaBD(AlunoModel novoAluno) {
 
@@ -91,37 +126,6 @@ public class AlunoDAO {
         }
     }
 
-    public List<AlunoModel> sacaTodosAlunos() {
-        List<AlunoModel> alunos = new ArrayList<>();
-
-        try {
-            Connection connection = DriverManager.getConnection(url);
-
-            // Create a SELECT query to retrieve all records
-            String selectSQL = "SELECT * FROM Aluno ORDER BY Numero";
-
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(selectSQL);
-
-            while (resultSet.next()) {
-                AlunoModel aluno = new AlunoModel();
-                aluno.setId(resultSet.getInt("idAluno"));
-                aluno.setNome(resultSet.getString("Nome"));
-                aluno.setNumero(resultSet.getInt("Numero"));
-                aluno.setTurma(resultSet.getString("Turma"));
-                aluno.setContacto(resultSet.getString("Contacto"));
-                alunos.add(aluno);
-            }
-
-            resultSet.close();
-            statement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return alunos;
-    }
 
 
     public void atualizaNaBD(AlunoModel alunoAtualizado) {

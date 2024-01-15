@@ -18,9 +18,11 @@ public class PcController {
     private ObservableList<PcModel> pcs;
 
     private TableColumn<PcModel, ?> lastSortedColumn;
+    private ObservableList<AlunoModel> alunosList;
+
+    // other methods
 
 
-    private List<PcModel> todosPcs;
     private ObservableList<String> salas;
     private PcModel pc = new PcModel();
     private boolean alteradoPorCodigo = true, novo = false;
@@ -28,6 +30,14 @@ public class PcController {
     private int registoAtual = 0;
 //    private boolean novo = false, alteradoPorCodigo = true, alteradoPeloUtilizador = false;
 
+
+    public PcDAO getPcDAO() {
+        return pcDAO;
+    }
+
+    public void setPcDAO(PcDAO pcDAO) {
+        this.pcDAO = pcDAO;
+    }
 
     @FXML
     private TableView<PcModel> pcsTableView;
@@ -82,6 +92,11 @@ public class PcController {
 
     @FXML
     private TextField txtSala;
+
+    public void setAlunosList(ObservableList<AlunoModel> alunosList) {
+        this.alunosList = alunosList;
+        // Use the 'alunosList' as needed in your PcController
+    }
 
     @FXML
     void inserirPc(ActionEvent event) {
@@ -192,20 +207,20 @@ public class PcController {
     void escolheSala(ActionEvent event) {
         String sala = lstSala.getValue();
         if (sala.equals("Todas elas")){
-            pcs.setAll(FXCollections.observableArrayList(todosPcs));
+            pcs.setAll(FXCollections.observableArrayList(pcDAO.getPcs()));
             System.out.println(sala);
         }
         else
-            pcs.setAll(FXCollections.observableArrayList(todosPcs.stream().filter(a -> a.getSala().equals(sala)).collect(Collectors.toList())));
+            pcs.setAll(FXCollections.observableArrayList(pcDAO.getPcs().stream().filter(a -> a.getSala().equals(sala)).collect(Collectors.toList())));
     }
 
-    @FXML
-    private void initialize() {
-        spNumero.setValueFactory(valueFactory);
-
-        pcDAO = new PcDAO();
-        todosPcs = pcDAO.sacaTodosPcs();
-        pcs = FXCollections.observableArrayList(todosPcs);
+    public  void inicia(PcDAO pcDAO){
+        this.pcDAO = pcDAO;
+        pcs = FXCollections.observableArrayList(pcDAO.getPcs());
+        pcs.stream().forEach(pc -> {
+            pc.printPcData();
+            System.out.println("----------------------------------------");
+        });        System.out.println(pcs.stream().count());
         spNumero.getValueFactory().valueProperty().bindBidirectional(pc.numeroProperty().asObject());
         txtMarca.textProperty().bindBidirectional(pc.marcaProperty());
         txtSala.textProperty().bindBidirectional(pc.salaProperty());
@@ -219,12 +234,6 @@ public class PcController {
         listaSalas.add("Todas elas");
 
         lstSala.setItems(listaSalas);
-
-        System.out.println(listaSalas);
-
-        addChangeListener(txtMarca);
-        addChangeListener(txtNrSerie);
-        addChangeListener(txtSala);
 
 
         TableColumn<PcModel, Integer> idColumn = new TableColumn<>("ID");
@@ -262,6 +271,19 @@ public class PcController {
         else {
             mostraPc();
         }
+
+
+    }
+    @FXML
+    private void initialize() {
+        spNumero.setValueFactory(valueFactory);
+
+
+        addChangeListener(txtMarca);
+        addChangeListener(txtNrSerie);
+        addChangeListener(txtSala);
+
+
     }
 
     private void addChangeListener(TextField textField) {

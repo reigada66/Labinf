@@ -29,11 +29,16 @@
                         </ImageView>
                     </graphic>
                 </Button>
- ...
-
-            <effect>
-                <Reflection bottomOpacity="0.26" topOpacity="0.74" />
-            </effect>
+                <Button fx:id="btnEquipamentos" mnemonicParsing="false" onAction="#vistaEquipamentos" translateX="300.0">
+                    <graphic>
+                        <ImageView fitHeight="39.0" fitWidth="68.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@imagens/pcs.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </items>
         </ToolBar>
     </bottom>
     <top>
