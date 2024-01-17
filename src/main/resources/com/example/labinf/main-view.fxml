@@ -24,7 +24,7 @@
                     <graphic>
                         <ImageView fitHeight="39.0" fitWidth="68.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="@imagens/aluno.png" />
+                                <Image url="@imagens/alunos.png" />
                             </image>
                         </ImageView>
                     </graphic>
@@ -33,7 +33,7 @@
                     <graphic>
                         <ImageView fitHeight="39.0" fitWidth="68.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="@imagens/pcs.png" />
+                                <Image url="@imagens/pc.png" />
                             </image>
                         </ImageView>
                     </graphic>

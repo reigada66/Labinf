@@ -25,14 +25,6 @@ public class AlunoController {
 //    private boolean novo = false, alteradoPorCodigo = true, alteradoPeloUtilizador = false;
 
 
-    public AlunoDAO getAlunoDAO() {
-        return alunoDAO;
-    }
-
-    public void setAlunoDAO(AlunoDAO alunoDAO) {
-        this.alunoDAO = alunoDAO;
-    }
-
     @FXML
     private TableView<AlunoModel> alunosTableView;
 

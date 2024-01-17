@@ -7,18 +7,21 @@ import javafx.beans.property.SimpleStringProperty;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.List;
+
 public class PcModel {
 
     private int id;
 
 
-    private SimpleIntegerProperty numero = new SimpleIntegerProperty();
-    private SimpleStringProperty marca = new SimpleStringProperty();
-    private SimpleStringProperty sala = new SimpleStringProperty();
-    private SimpleStringProperty nrSerie = new SimpleStringProperty();
+    private final SimpleIntegerProperty numero = new SimpleIntegerProperty();
+    private final SimpleStringProperty marca = new SimpleStringProperty();
+    private final SimpleStringProperty sala = new SimpleStringProperty();
+    private final SimpleStringProperty nrSerie = new SimpleStringProperty();
 
-    private SimpleBooleanProperty estado = new SimpleBooleanProperty();
-    private List<OcupacaoModel> pcOcupacao;
+    private final SimpleBooleanProperty estado = new SimpleBooleanProperty();
+
+    private List<OcupacaoModel> ocupacaoPc;
 
     // Getter and Setter methods for properties
     public int getId() {
@@ -89,22 +92,23 @@ public class PcModel {
         this.nrSerie.set(nrSerie);
     }
 
+    public List<OcupacaoModel> getOcupacaoPc() {
+        return ocupacaoPc;
+    }
+
+    public void setOcupacaoPc(List<OcupacaoModel> ocupacaoPc) {
+        this.ocupacaoPc = ocupacaoPc;
+    }
+
     public PcModel(){
         marca.set("Dell");
         numero.set(1);
-        pcOcupacao = new ArrayList<>();
+        ocupacaoPc = new ArrayList<>();
     }
 
-    public List<OcupacaoModel> getPcOcupacao() {
-        return pcOcupacao;
-    }
-
-    public void setPcOcupacao(List<OcupacaoModel> pcOcupacao) {
-        this.pcOcupacao = pcOcupacao;
-    }
 
     public void addOcupacao(OcupacaoModel ocupacao){
-        pcOcupacao.add(ocupacao);
+        ocupacaoPc.add(ocupacao);
     }
 
     public void setPc(PcModel original){
@@ -114,6 +118,7 @@ public class PcModel {
         setNumero(original.getNumero());
         setSala(original.getSala());
         setEstado(original.getEstado());
+        setOcupacaoPc(original.getOcupacaoPc());
     }
 
     public void printPcData() {
@@ -125,10 +130,10 @@ public class PcModel {
         System.out.println("Número de Série: " + getNrSerie());
         System.out.println("Estado: " + getEstado());
 
-        if (pcOcupacao != null && !pcOcupacao.isEmpty()) {
+        if (ocupacaoPc != null && !ocupacaoPc.isEmpty()) {
             System.out.println("\nOcupacao List:");
 
-            for (OcupacaoModel ocupacao : pcOcupacao) {
+            for (OcupacaoModel ocupacao : ocupacaoPc) {
                 System.out.println("\nOcupacao Data:");
                 System.out.println("ID: " + ocupacao.getIdOcupacao());
                 System.out.println("Inicio: " + ocupacao.getInicio());

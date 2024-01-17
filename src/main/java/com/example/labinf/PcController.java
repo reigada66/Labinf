@@ -8,7 +8,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class PcController {
@@ -17,13 +16,14 @@ public class PcController {
     private PcDAO pcDAO;
     private ObservableList<PcModel> pcs;
 
-    private TableColumn<PcModel, ?> lastSortedColumn;
+    private TableColumn<OcupacaoModel, ?> lastSortedColumn;
     private ObservableList<AlunoModel> alunosList;
 
     // other methods
 
 
     private ObservableList<String> salas;
+    private ObservableList<OcupacaoModel> listaOcupacoes;
     private PcModel pc = new PcModel();
     private boolean alteradoPorCodigo = true, novo = false;
 
@@ -40,7 +40,7 @@ public class PcController {
     }
 
     @FXML
-    private TableView<PcModel> pcsTableView;
+    private TableView<OcupacaoModel> ocupTableView;
 
     @FXML
     private ComboBox<String> lstSala;
@@ -115,29 +115,22 @@ public class PcController {
         btnCancelar.setDisable(ativa);
         btnAnterior.setDisable(!ativa);
         btnSeguinte.setDisable(!ativa);
-        pcsTableView.setDisable(!ativa);
+//        pcsTableView.setDisable(!ativa);
 
     }
 
 
     @FXML
     void confirmaInserir(ActionEvent event) {
-        PcModel novoPc = new PcModel();
-        novoPc.setPc(pc);
         if (novo) {
             System.out.println("sala: " + pc.getSala() + " Marca: " + pc.getMarca() + " nrserie: " + pc.getNrSerie());
             pcDAO.insereNaBD(pc);
-            pcs.add(novoPc);
-            pc.setNumero(10);
-            registoAtual = pcs.size() - 1;
-            System.out.println(pcs.get(registoAtual).getNumero());
+            pcs.add(pc);
             novo = false;
         }
         else{
             pcDAO.atualizaNaBD(pc);
-            pcs.set(registoAtual,novoPc);
-            System.out.println("Confirma registo atual: " + registoAtual);
-            pcs.forEach(p -> System.out.println(p.getMarca()));
+            pcs.set(registoAtual,pc);
         }
         permiteNavegar(true);
         mostraPc();
@@ -146,7 +139,6 @@ public class PcController {
     @FXML
     void cancelaInserir(ActionEvent event) {
         permiteNavegar(true);
-        novo = false;
         mostraPc();
     }
 
@@ -194,11 +186,14 @@ public class PcController {
 
     private void mostraPc() {
         alteradoPorCodigo = true;
-        System.out.println("Mostra registo atual antes: " + registoAtual + " pcatual: " + pc.getMarca());
-        pcs.forEach(p -> System.out.println(p.getMarca()));
         pc.setPc(pcs.get(registoAtual));
-        System.out.println("Mostra registo atual antes: " + registoAtual + " pcatual: " + pc.getMarca());
-        pcs.forEach(p -> System.out.println(p.getMarca()));
+        listaOcupacoes = FXCollections.observableArrayList(pc.getOcupacaoPc());
+        listaOcupacoes.stream().forEach(o -> {
+                        System.out.println(o.getInicio());
+        });
+
+        ocupTableView.setItems(listaOcupacoes);
+        ocupTableView.refresh();
 
         alteradoPorCodigo = false;
     }
@@ -217,10 +212,7 @@ public class PcController {
     public  void inicia(PcDAO pcDAO){
         this.pcDAO = pcDAO;
         pcs = FXCollections.observableArrayList(pcDAO.getPcs());
-        pcs.stream().forEach(pc -> {
-            pc.printPcData();
-            System.out.println("----------------------------------------");
-        });        System.out.println(pcs.stream().count());
+        System.out.println(pcs.stream().count());
         spNumero.getValueFactory().valueProperty().bindBidirectional(pc.numeroProperty().asObject());
         txtMarca.textProperty().bindBidirectional(pc.marcaProperty());
         txtSala.textProperty().bindBidirectional(pc.salaProperty());
@@ -236,41 +228,33 @@ public class PcController {
         lstSala.setItems(listaSalas);
 
 
-        TableColumn<PcModel, Integer> idColumn = new TableColumn<>("ID");
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        TableColumn<PcModel, String> marcaColumn = new TableColumn<>("Marca");
-        marcaColumn.setPrefWidth(140);
-        marcaColumn.setCellValueFactory(new PropertyValueFactory<>("marca"));
-        TableColumn<PcModel, Integer> numeroColumn = new TableColumn<>("Número");
-        numeroColumn.setCellValueFactory(new PropertyValueFactory<>("numero"));
-        TableColumn<PcModel, String> salaColumn = new TableColumn<>("Sala");
-        salaColumn.setCellValueFactory(new PropertyValueFactory<>("sala"));
-        TableColumn<PcModel, String> nrSerieColumn = new TableColumn<>("NrSerie");
-        nrSerieColumn.setCellValueFactory(new PropertyValueFactory<>("nrSerie"));
-        lastSortedColumn = numeroColumn; //  "numeroColumn" é a ordem inicial
+        TableColumn<OcupacaoModel, Integer> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("idOcupacao"));
+        TableColumn<OcupacaoModel, String> dataColumn = new TableColumn<>("Data");
+        dataColumn.setPrefWidth(140);
+        dataColumn.setCellValueFactory(new PropertyValueFactory<>("inicio"));
+        lastSortedColumn = dataColumn;
 
         // Add columns to the TableView
-        pcsTableView.getColumns().setAll(idColumn, marcaColumn, numeroColumn, salaColumn, nrSerieColumn);
+        ocupTableView.getColumns().setAll(idColumn, dataColumn);
 
-        pcsTableView.setItems(pcs);
+        ocupTableView.setItems(listaOcupacoes);
 
-        pcsTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+        ocupTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 // Update the text fields with the selected PcModel's data
                 registoAtual = pcs.indexOf(newSelection);
-                System.out.println("selecao da tabela: " + registoAtual);
-                pcs.forEach(p -> System.out.println(p.getMarca()));
                 mostraPc();
             }
         });
 
         if (pcs.isEmpty()) {
+            pc.setPc(new PcModel());
             permiteNavegar(false);
             novo = true;
         }
-        else {
-            mostraPc();
-        }
+        //mostraPc();
+
 
 
     }
@@ -278,14 +262,12 @@ public class PcController {
     private void initialize() {
         spNumero.setValueFactory(valueFactory);
 
-
         addChangeListener(txtMarca);
         addChangeListener(txtNrSerie);
         addChangeListener(txtSala);
 
 
     }
-
     private void addChangeListener(TextField textField) {
         textField.textProperty().addListener((obs, oldValue, newValue) -> {
             if (!alteradoPorCodigo)

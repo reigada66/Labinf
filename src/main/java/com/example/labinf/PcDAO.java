@@ -46,26 +46,29 @@ public class PcDAO {
                     pc.setNrSerie(resultSet.getString("NrSerie"));
                     pcs.add(pc);
                 }
+                int id = resultSet.getInt("IdOcupacao");
+                if (! resultSet.wasNull()) {
 
-                OcupacaoModel ocupacao = new OcupacaoModel();
-                ocupacao.setIdOcupacao(resultSet.getInt("IdOcupacao"));
-                ocupacao.setInicio(resultSet.getString("Inicio"));
-// Set the parsed date to your OcupacaoModel
-                ocupacao.setPC(pc);
-                Integer alunoId = resultSet.getInt("IdAluno");
+                    OcupacaoModel ocupacao = new OcupacaoModel();
+                    ocupacao.setIdOcupacao(id);
+                    ocupacao.setInicio(resultSet.getString("Inicio"));
+
+                    ocupacao.setPC(pc);
+                    Integer alunoId = resultSet.getInt("IdAluno");
 
 
-// Find the matching AlunoModel in the list alunos
-                AlunoModel matchingAluno = listadeAlunos.stream()
-                        .filter(aluno -> aluno.getId() == alunoId)
-                        .findFirst()
-                        .orElse(null);
+                    // Find the matching AlunoModel in the list alunos
+                    AlunoModel matchingAluno = listadeAlunos.stream()
+                            .filter(aluno -> aluno.getId() == alunoId)
+                            .findFirst()
+                            .orElse(null);
 
-// Set the AlunoModel only if a matchingAluno was found
-                if (matchingAluno != null) {
-                    ocupacao.setAluno(matchingAluno);
+                    // Set the AlunoModel only if a matchingAluno was found
+                    if (matchingAluno != null) {
+                        ocupacao.setAluno(matchingAluno);
+                    }
+                    pc.addOcupacao(ocupacao);
                 }
-                pc.addOcupacao(ocupacao);
             }
 
             resultSet.close();

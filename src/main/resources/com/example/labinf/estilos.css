@@ -1,5 +1,5 @@
 .texto-geral{
-    -fx-font: Tahoma;
+    -fx-font: 12px Tahoma;
 }
 #label-escola {
     -fx-font: 100px Tahoma;
