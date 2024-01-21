@@ -53,4 +53,6 @@ public class OcupacaoModel {
     public void setAluno(AlunoModel aluno) {
         this.aluno = aluno;
     }
+
 }
+

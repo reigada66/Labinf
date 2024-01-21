@@ -16,14 +16,14 @@ public class PcController {
     private PcDAO pcDAO;
     private ObservableList<PcModel> pcs;
 
-    private TableColumn<OcupacaoModel, ?> lastSortedColumn;
+    private TableColumn<DesembrulhaOcupacao, ?> lastSortedColumn;
     private ObservableList<AlunoModel> alunosList;
 
     // other methods
 
 
     private ObservableList<String> salas;
-    private ObservableList<OcupacaoModel> listaOcupacoes;
+    private ObservableList<DesembrulhaOcupacao> listaOcupacoes;
     private PcModel pc = new PcModel();
     private boolean alteradoPorCodigo = true, novo = false;
 
@@ -40,7 +40,7 @@ public class PcController {
     }
 
     @FXML
-    private TableView<OcupacaoModel> ocupTableView;
+    private TableView<DesembrulhaOcupacao> ocupTableView;
 
     @FXML
     private ComboBox<String> lstSala;
@@ -187,11 +187,11 @@ public class PcController {
     private void mostraPc() {
         alteradoPorCodigo = true;
         pc.setPc(pcs.get(registoAtual));
-        listaOcupacoes = FXCollections.observableArrayList(pc.getOcupacaoPc());
-        listaOcupacoes.stream().forEach(o -> {
+        listaOcupacoes.setAll(FXCollections.observableArrayList(pc.getOcupacaoPc().stream().map(ocup -> new DesembrulhaOcupacao(ocup)).collect(Collectors.toList())));
+      /*  listaOcupacoes.stream().forEach(o -> {
                         System.out.println(o.getInicio());
         });
-
+*/
         ocupTableView.setItems(listaOcupacoes);
         ocupTableView.refresh();
 
@@ -211,6 +211,7 @@ public class PcController {
 
     public  void inicia(PcDAO pcDAO){
         this.pcDAO = pcDAO;
+        listaOcupacoes = FXCollections.observableArrayList();
         pcs = FXCollections.observableArrayList(pcDAO.getPcs());
         System.out.println(pcs.stream().count());
         spNumero.getValueFactory().valueProperty().bindBidirectional(pc.numeroProperty().asObject());
@@ -228,15 +229,15 @@ public class PcController {
         lstSala.setItems(listaSalas);
 
 
-        TableColumn<OcupacaoModel, Integer> idColumn = new TableColumn<>("ID");
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("idOcupacao"));
-        TableColumn<OcupacaoModel, String> dataColumn = new TableColumn<>("Data");
+        TableColumn<DesembrulhaOcupacao, String> dataColumn = new TableColumn<>("Data");
         dataColumn.setPrefWidth(140);
         dataColumn.setCellValueFactory(new PropertyValueFactory<>("inicio"));
+        TableColumn<DesembrulhaOcupacao, String> alunoColumn = new TableColumn<>("Aluno");
+        alunoColumn.setCellValueFactory(new PropertyValueFactory<>("nomeAluno"));
         lastSortedColumn = dataColumn;
 
         // Add columns to the TableView
-        ocupTableView.getColumns().setAll(idColumn, dataColumn);
+        ocupTableView.getColumns().setAll(dataColumn, alunoColumn);
 
         ocupTableView.setItems(listaOcupacoes);
 

@@ -15,7 +15,7 @@ public class MainDAO {
     }
 
     public MainDAO() {
-        url = "jdbc:sqlite:C:/Users/afoliveira/labinf.db";
+        url = "jdbc:sqlite:C:/Users/pafro/labinf.db";
         alunoDAO = new AlunoDAO(url);
         alunoDAO.sacaTodosAlunos();
         this.pcDAO = new PcDAO(url);
