@@ -187,11 +187,7 @@ public class PcController {
     private void mostraPc() {
         alteradoPorCodigo = true;
         pc.setPc(pcs.get(registoAtual));
-        listaOcupacoes.setAll(FXCollections.observableArrayList(pc.getOcupacaoPc().stream().map(ocup -> new DesembrulhaOcupacao(ocup)).collect(Collectors.toList())));
-      /*  listaOcupacoes.stream().forEach(o -> {
-                        System.out.println(o.getInicio());
-        });
-*/
+
         ocupTableView.setItems(listaOcupacoes);
         ocupTableView.refresh();
 
@@ -226,28 +222,7 @@ public class PcController {
 
         listaSalas.add("Todas elas");
 
-        lstSala.setItems(listaSalas);
-
-
-        TableColumn<DesembrulhaOcupacao, String> dataColumn = new TableColumn<>("Data");
-        dataColumn.setPrefWidth(140);
-        dataColumn.setCellValueFactory(new PropertyValueFactory<>("inicio"));
-        TableColumn<DesembrulhaOcupacao, String> alunoColumn = new TableColumn<>("Aluno");
-        alunoColumn.setCellValueFactory(new PropertyValueFactory<>("nomeAluno"));
-        lastSortedColumn = dataColumn;
-
-        // Add columns to the TableView
-        ocupTableView.getColumns().setAll(dataColumn, alunoColumn);
-
-        ocupTableView.setItems(listaOcupacoes);
-
-        ocupTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                // Update the text fields with the selected PcModel's data
-                registoAtual = pcs.indexOf(newSelection);
-                mostraPc();
-            }
-        });
+        ...
 
         if (pcs.isEmpty()) {
             pc.setPc(new PcModel());
