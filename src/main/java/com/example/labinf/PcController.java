@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.util.Callback;
 
 import java.util.stream.Collectors;
 
@@ -27,7 +28,8 @@ public class PcController {
     private PcModel pc = new PcModel();
     private boolean alteradoPorCodigo = true, novo = false;
 
-    private int registoAtual = 0;
+    private int registoAtual = 0, ocupacaoAtual = -1;
+
 //    private boolean novo = false, alteradoPorCodigo = true, alteradoPeloUtilizador = false;
 
 
@@ -187,7 +189,7 @@ public class PcController {
     private void mostraPc() {
         alteradoPorCodigo = true;
         pc.setPc(pcs.get(registoAtual));
-        listaOcupacoes.setAll(FXCollections.observableArrayList(pc.getOcupacaoPc().stream().map(ocup -> new DesembrulhaOcupacao(ocup)).collect(Collectors.toList())));
+//    mudou de pc: siga atualizar listaOcupacoes
       /*  listaOcupacoes.stream().forEach(o -> {
                         System.out.println(o.getInicio());
         });
@@ -234,18 +236,20 @@ public class PcController {
         dataColumn.setCellValueFactory(new PropertyValueFactory<>("inicio"));
         TableColumn<DesembrulhaOcupacao, String> alunoColumn = new TableColumn<>("Aluno");
         alunoColumn.setCellValueFactory(new PropertyValueFactory<>("nomeAluno"));
+
+
         lastSortedColumn = dataColumn;
 
-        // Add columns to the TableView
+// Add columns to the TableView
         ocupTableView.getColumns().setAll(dataColumn, alunoColumn);
 
         ocupTableView.setItems(listaOcupacoes);
-
         ocupTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 // Update the text fields with the selected PcModel's data
-                registoAtual = pcs.indexOf(newSelection);
-                mostraPc();
+                ocupacaoAtual = listaOcupacoes.indexOf(newSelection);
+                System.out.println("Ocupação atual: " + ocupacaoAtual);
+//                mostraPc();
             }
         });
 
