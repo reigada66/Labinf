@@ -12,19 +12,4 @@ public class DesembrulhaOcupacao {
         this.nomeAluno = new SimpleStringProperty(ocupacao.getAluno().getNome());
     }
 
-    public String getInicio() {
-        return inicio.get();
-    }
-
-    public StringProperty inicioProperty() {
-        return inicio;
-    }
-
-    public String getNomeAluno() {
-        return nomeAluno.get();
-    }
-
-    public StringProperty nomeAlunoProperty() {
-        return nomeAluno;
-    }
 }
