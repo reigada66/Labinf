@@ -194,6 +194,7 @@ public class PcController {
                         System.out.println(o.getInicio());
         });
 */
+
         ocupTableView.setItems(listaOcupacoes);
         ocupTableView.refresh();
 
