@@ -187,6 +187,7 @@ public class PcController {
     private void mostraPc() {
         alteradoPorCodigo = true;
         pc.setPc(pcs.get(registoAtual));
+        listaOcupacoes.setAll(FXCollections.observableArrayList(pc.getOcupacaoPc().stream().map(o -> new DesembrulhaOcupacao(o)).collect(Collectors.toList())));
 
         ocupTableView.setItems(listaOcupacoes);
         ocupTableView.refresh();
